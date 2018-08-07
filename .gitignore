@@ -114,4 +114,4 @@ logs/*
 db/*
 
 #.etc
-images/
+images/*
