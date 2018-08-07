@@ -104,14 +104,14 @@ venv.bak/
 .mypy_cache/
 
 # config and pipenv
-./config.ini
-./Pipfile.lock
+config.ini
+Pipfile.lock
 
 #logs don't need to be keep tracked of
-./logs/*
+logs/*
 
 #db is different for each bot
-./db
+db/*
 
 #.etc
-./images
+images
