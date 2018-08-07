@@ -10,7 +10,6 @@ class Manager:
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
         self.db = TinyDB(self.config['db']['path'])
-        self.tornaments = {}
 
     @commands.command(pass_context=True, no_pm=True)
     async def test(self, ctx, *args):
@@ -27,15 +26,13 @@ class Manager:
         await self.bot.send_message(ctx.message.channel, '{} about to kill all tornament data, are you sure? (y/n)'.format(amention))
 
         def check(msg):
-            msgBool = msg.content == 'y' || msg.content == 'n'
-            if not msgBool:
-                self.bot.send_message(message.channel, '{} I didn\'t understand that. Please just say "n" or "y"')
-            return msgBool
+            return msg.content == 'y' or msg.content == 'n'
 
-        answer = await self.bot.wait_for_message(author=ctx.message.author.mention, check=check)
-        if answer == 'y':
+        answer = await self.bot.wait_for_message(author=ctx.message.author, check=check)
+        if answer.content == 'y':
+            self.db.purge_tables()
             await self.bot.send_message(ctx.message.channel, '{} tornaments killed!'.format(amention))
-        elif answer == 'n':
+        elif answer.content == 'n':
             await self.bot.send_message(ctx.message.channel, '{} okay. I\'ll do nothing then.'.format(amention))
         else:
-            await self.bot.send_message(ctx.message.channel, '{} Lol how did you get here?'.format(amention))
+            await self.bot.send_message(ctx.message.channel, '{} Uhhh... Whatever you typed confused me. Please try again.'.format(amention))
