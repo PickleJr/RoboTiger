@@ -21,7 +21,7 @@ if not discord.opus.is_loaded():
 
 print("Hello, World!")
 
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("!Tiger "), description='Tornament/Admin bot for the TigerLan discord server.')
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(config['bot']['trigger'] + " "), description='Tornament/Admin bot for the TigerLan discord server.')
 bot.add_cog(Manager(bot))
 
 @bot.event
