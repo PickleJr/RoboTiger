@@ -6,13 +6,41 @@ from discord.ext import commands
 from tinydb import TinyDB, Query
 from tinydb.operations import set
 
+'''
+TODO: Add admin check for purge and add tournament command.
+TODO: Add a way for a team to leave a tournament.
+TODO: Add a way for an admin to add a team to a tournament.
+'''
+
 class Manager:
     def __init__(self, bot):
         self.bot = bot
+        self.bot.remove_command('help')
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
         self.db = TinyDB(self.config['db']['path'])
 
+    @commands.command(pass_context=True, no_pm=True)
+    async def help(self, ctx, *args):
+        author = ctx.message.author
+        amention = author.mention
+        has_privs = self.userIsAdmin(author)
+        trigger = self.config['bot']['trigger']
+        msg = (
+            '{0} Below is a list of example commands. If you want to pass additional arguments to the commands that accept arguments, you might have to wrap quotes around those arguments. '
+            'If you don\'t wrap the additinoal arguments in quotes, there\'s a chance I won\'t understand the command and I\'ll just ignore them and ask you for the information I need.\n\n'
+            '{1} u <any insult>    - Returns "no u"\n'
+            '{1} suggestion <sugggestion>    - Submits a suggestion for this bot.\n'
+            '{1} add team "<tournament name>" "<team name>" "<@Members, @on, this, team>"    - Joints your team to a tournament (Notice the quotes)'
+        )
+        if has_privs:
+            msg = msg + (
+                '\n\n As an admin, you also have the ability to do these commands:\n\n'
+                '{1} add tournament "<tournament name>"    - Creates a tournament\n'
+                '{1} purge    - Delete ALL tournament data. Do this at the end of TigerLan'
+            )
+
+        await self.bot.send_message(ctx.message.channel, msg.format(amention, trigger))
 
     @commands.command(pass_context=True, no_pm=True)
     async def test(self, ctx, *args):
@@ -68,14 +96,16 @@ class Manager:
         })
         await self.bot.send_message(ctx.message.channel, '{} suggestion noted. Thanks!'.format(amention))
 
+    def userIsAdmin(self, user):
+        roles = [str(role) for role in user.roles]
+        return 'Mods' in roles or 'Admins' in roles or '@everyone' in roles
 
     @commands.group(pass_context=True, no_pm=True)
     async def add(self, ctx):
         if ctx.invoked_subcommand is None:
             author = ctx.message.author
             amention = author.mention
-            roles = [str(role) for role in author.roles]
-            has_privs = 'Mods' in roles or 'Admins' in roles or "@everyone" in roles
+            has_privs = self.userIsAdmin(author)
 
             msg = '{} No subcommand found! Please call '
             if has_privs: msg = msg + 'either "add tournament" or '
