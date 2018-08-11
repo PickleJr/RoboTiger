@@ -113,5 +113,8 @@ logs/*
 #db is different for each bot
 db/*
 
+#.vscode, since it'll be different for everyone
+.vscode/
+
 #.etc
 images/*
